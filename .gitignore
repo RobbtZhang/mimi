@@ -1,4 +1,6 @@
 .DS_Store
+public/imgs
+public/mock
 node_modules
 /dist
 
