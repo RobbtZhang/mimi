@@ -212,9 +212,11 @@
                         .children{
                             position:absolute;
                             box-sizing:border-box;
+                            background-color:#ffffff;
                             top:112px;
                             height:0;
                             opacity:0;
+                            z-index:10;
                             left:0;
                             width:1192px;
                             overflow:hidden;
