@@ -14,7 +14,9 @@
                     <a href="javascript:;" v-if="username">我的订单</a>
                     <a href="javascript:;" class="my-cart"
                     @click="goToCart">
-                        <span class="icon-cart"></span> 购物车
+                        <span class="icon-cart"></span>
+                        <span v-if="cartCount">购物车({{cartCount}})</span>
+                        <span v-else>购物车</span>
                     </a>
                 </div>
             </div>
@@ -33,7 +35,7 @@
                                     <li class="product" v-for="(item,index) in phoneList" :key="index">
                                         <a :href="'/#/product/'+item.id" target="_blank">
                                             <div class="pro-img">
-                                                <img :src="item.mainImage" :alt="item.subtitle">
+                                                <img v-lazy="item.mainImage" :alt="item.subtitle">
                                             </div>
                                             <div class="pro-name">{{item.name}}</div>
                                             <div class="pro-price">{{item.price|currency}}</div>
@@ -68,9 +70,16 @@
         name:'nav-header',
         data(){
             return {
-                username:'jack',
                 // showPhoneList:false,
-                phoneList:[]
+                phoneList:[],
+            }
+        },
+        computed:{
+            username(){
+                return this.$store.state.username
+            },
+            cartCount(){
+                return this.$store.state.cartCount
             }
         },
         filters:{
@@ -81,8 +90,23 @@
         },
         mounted(){
             this.getProductList()
+            this.getCartCount(),
+            this.getUser()
         },
         methods:{
+            getUser(){
+                this.axios.get('/user').then((res={})=>{
+                    this.$store.dispatch('saveUserName',res.username)
+                })
+            },
+            getCartCount(){
+                this.axios.get('/carts/products/sum').then((res)=>{
+                    if(res.status==10){
+                        return
+                    }
+                    this.$store.dispatch('saveCartCount',res)
+                })
+            },
             // mousemovePhone(){
             //    this.showPhoneList=true
             // },
@@ -97,6 +121,7 @@
             // mousemovePhoneList(){
             //     clearTimeout(this.timer)
             // },
+            
             getProductList(){
                 this.axios.get('/products',{
                     params:{
@@ -134,6 +159,9 @@
                     display:inline-block;
                     color:#B0B0B0;
                     margin-right:17px;
+                    &:last-child{
+                        margin-right:0;
+                    }
                 }
                 .my-cart{
                     width:110px;
@@ -151,7 +179,6 @@
             .container{
                 position:relative;
                 height:112px;
-                padding-right:17px;
                 @include flex();
                 .header-logo{
                     display:inline-block;

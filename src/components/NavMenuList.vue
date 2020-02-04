@@ -4,9 +4,12 @@
     @mouseleave="menuListMouseleave">
        <ul class="menu-list-container">
            <li v-for="(item,index) in data" :key="index">
-               <a  class="menu-list-item" :href="'/#/product/'+item.id">
+               <router-link :to="/product/+item.id" class="menu-list-item">
+               <img :src="item.img" alt="">{{item.name}}
+               </router-link>
+               <!-- <a  class="menu-list-item" :href="'/#/product/'+item.id">
                    <img :src="item.img" alt="">{{item.name}}
-               </a>
+               </a> -->
            </li>
        </ul> 
     </div>

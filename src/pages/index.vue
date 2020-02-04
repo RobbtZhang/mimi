@@ -52,19 +52,61 @@
                     </swiper>
                 </div>
                 <div class="ads-box">
-                    
+                    <a :href="'/#/product/'+item.id" v-for="(item,index) in adsList" v-bind:key="index">
+                        <img v-lazy="item.img" alt="">
+                    </a>
                 </div>
-                <div class="banner"></div>
-                <div class="product-box"></div>
             </div>
+            <div class="product-box">
+                <div class="container1">
+                    <h2>手机</h2>
+                    <div class="wrapper">
+                        <div class="banner-left">
+                            <a href="/#/product/35">
+                                <img src="/imgs/mix-alpha.jpg" alt="">
+                            </a>
+                        </div>
+                        <div class="list-box">
+                            <div class="list" v-for="(arr,i) in phoneList" :key="i">
+                                <div class="item" v-for="(item,j) in arr" :key="j">
+                                    <span :class="j%2==0?'new-pro':'kill'"
+                                    v-text="j%2==0?'新品':'秒杀'"></span>
+                                    <div class="item-img">
+                                        <img v-lazy="item.mainImage" alt="">
+                                    </div>
+                                    <div class="item-info">
+                                        <h3>{{item.name}}</h3>
+                                        <P>>{{item.subtitle}}</P>
+                                        <p class="price" @click="addCart(item.id)">{{item.price}}元</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+                </div>
         </div>
         <service-bar></service-bar>
+        <modal 
+        title="提示" 
+        sureText="查看购物车" 
+        btnType="1" 
+        modalType="middle"
+        :showModal="showModal"
+        @submit="goToCart"
+        @cancel="showModal=false"
+        >
+            <template v-slot:body>
+                <p>商品添加成功！</p>
+            </template>
+        </modal>
     </div>
 </template>
 
 <script>
 import ServiceBar from '../components/ServiceBar'
 import NavMenuList from '../components/NavMenuList'
+import Modal from '../components/Modal'
 import {swiper, swiperSlide} from 'vue-awesome-swiper'
 import 'swiper/dist/css/swiper.css'
     export default {
@@ -73,11 +115,13 @@ import 'swiper/dist/css/swiper.css'
             ServiceBar,
             swiper,
             swiperSlide,
-            NavMenuList
+            NavMenuList,
+            Modal
         },
         data(){
             return {
-                showNav:1,
+                showNav:false,
+                showModal:false,
                 navMenuData:[],
                 data:{
                     type1:[
@@ -180,10 +224,59 @@ import 'swiper/dist/css/swiper.css'
                         id:'',
                         img:'imgs/slider/slide-5.jpg'
                     }
+                ],
+                adsList:[
+                    {
+                        id:33,
+                        img:'/imgs/ads/ads-1.png'
+                    },{
+                        id:48,
+                        img:'/imgs/ads/ads-2.jpg'
+                    },{
+                        id:45,
+                        img:'/imgs/ads/ads-3.png'
+                    },{
+                        id:47,
+                        img:'/imgs/ads/ads-4.jpg'
+                    }
+                ],
+                phoneList:[
+                    
                 ]
             }
         },
+        mounted(){
+          this.init()   
+        },
         methods:{
+            init(){
+                this.axios.get('/products',{
+                    params:{
+                        categoryId:100012,
+                        pageSize:14
+                    }
+                }).then((res)=>{
+                    this.phoneList=[res.list.slice(6,10),res.list.slice(10,14)]
+                })
+            },
+            goToCart(){
+                this.$router.push('/cart')
+            },
+            addCart(id){
+                
+                // return
+                this.axios.post('/carts',{
+                    productId:id,
+                    selected:true
+                }).then((res)=>{
+                    if(res.status==10){
+                        this.$router.push('/login')
+                    }else{
+                        this.showModal=true
+                        this.$store.dispatch('saveCartCount',res.cartTotalQuantity)
+                    }
+                })
+            },
             NavMenuMouseover(e){
                 this.showNav=true
                 this.dataType=e.target.getAttribute('data-type')
@@ -254,6 +347,117 @@ import 'swiper/dist/css/swiper.css'
                 }
             }
         }
+        .ads-box{
+            @include flex();
+            margin-top:14px;
+            margin-bottom:31px;
+            img{
+                width:296px;
+                height:167px;
+            }
+        }
+    }
+    .product-box{
+        background-color:$colorJ;
+        .container1{
+            width:1226px;
+            padding-left:17px;
+            margin:0 auto;
+            box-sizing:border-box;
+            overflow:hidden;
+            h2{
+                font-size:$fontF;
+                height:21px;
+                line-height:21px;
+                color:$colorB;
+                margin-bottom:10px;
+                margin-top:10px;
+            }
+            .wrapper{
+                display:flex;
+                height:630px;
+                .banner-left{
+                    margin-right:16px;
+                    img{
+                        width:224px;
+                        height:619px;
+                    }
+                }
+                .list-box{
+                    .list{
+                        padding-right:15px;
+                        padding-left:10px;
+                        box-sizing: border-box;
+                        @include flex();
+                        width:969px;
+                        margin-bottom:14px;
+                        &:last-child{
+                            margin-bottom:0;
+                        }
+                        .item{
+                            box-sizing:border-box;
+                            width:226px;
+                            height:302px;
+                            padding-top:15px;
+                            background-color:$colorG;
+                            text-align:center;
+                            transition:all .2s linear;
+                            &:hover{
+                                transform: translate3d(0,-2px,0);
+                                box-shadow:0px 15px 30px rgba(0,0,0,.1);
+                                z-index:10;
+                            }
+                            span{
+                                display:inline-block;
+                                width:67px;
+                                height:24px;
+                                font-size:14px;
+                                line-height:24px;
+                                color:#ffffff;
+                                &.new-pro{
+                                    background-color:#7ECF68;
+                                }
+                                &.kill{
+                                    background-color:#E82626;
+                                }
+                            }
+                            .item-img{
+                                img{
+                                    width:100%;
+                                    height:180px;
+                                }
+                            }
+                            .item-info{
+                                h3{
+                                    font-size:$fontJ;
+                                    color:$colorB;
+                                    line-height:$fontJ;
+                                    font-weight:bold;
+                                }
+                                p{
+                                    color:$colorD;
+                                    line-height:13px;
+                                    margin:6px auto 13px;
+                                    &.price{
+                                        color:#F20A0A;
+                                        font-size:$fontJ;
+                                        font-weight:bold;
+                                        cursor:pointer;
+                                        &:after{
+                                            content:' ';
+                                            @include bgImg(22px,22px,'/imgs/icon-cart-hover.png');
+                                            margin-left:5px;
+                                            vertical-align:middle;
+                                        }
+                                    }
+                                }
+                                
+                            }
+                        }
+                    }
+                }
+            }
+        }        
     }
 }
 </style>
