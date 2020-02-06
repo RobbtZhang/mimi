@@ -2,6 +2,7 @@
     <div class="menu-list" 
     @mouseover="menuListMouseover" 
     @mouseleave="menuListMouseleave">
+        <no-data v-show="!data.length" content="暂无商品信息！"></no-data>
        <ul class="menu-list-container">
            <li v-for="(item,index) in data" :key="index">
                <router-link :to="/product/+item.id" class="menu-list-item">
@@ -16,6 +17,7 @@
 </template>
 
 <script>
+    import NoData from './NoData'
     export default {
         props:{
             data:{
@@ -24,6 +26,9 @@
                     return []
                 }
             }
+        },
+        components:{
+            NoData
         },
         methods:{
             menuListMouseover(){

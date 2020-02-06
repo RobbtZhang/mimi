@@ -5,6 +5,8 @@ import VueAxios from 'vue-axios'
 import router from './router'
 import VueCookie from 'vue-cookie'
 import VueLzayLoad from 'vue-lazyload'
+import {Message} from 'element-ui'
+import 'element-ui/lib/theme-chalk/index.css'
 import store from './store'
 // import env from './env'
 
@@ -36,6 +38,7 @@ Vue.use(VueCookie)
 Vue.use(VueLzayLoad,{
   loading:'/imgs/loading-svg/loading-cubes.svg'
 })
+Vue.prototype.$message=Message
 Vue.config.productionTip = false
 
 new Vue({
